@@ -92,8 +92,10 @@ def classify(df_5min: pd.DataFrame, as_of_date: date | None = None) -> dict:
     daily = build_daily_ohlcv(df_5min)
 
     if as_of_date:
-        # Use all data up to and including as_of_date
+        # Use all data up to and including as_of_date (handle tz-aware index)
         target = pd.Timestamp(as_of_date)
+        if daily.index.tz is not None:
+            target = target.tz_localize(daily.index.tz)
         daily = daily[daily.index <= target]
 
     if len(daily) < 210:
